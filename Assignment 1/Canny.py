@@ -112,9 +112,20 @@ def second_diff_one_dimensional_gaussian(x, k, sigma=1):
 
 # Below functions are required for this assignment:
 def filtered_gradient(im, sigma):
-    f_x, f_y = None
-    return f_x, f_y
-
+    # f_x = np.array(im,copy=True)
+    # f_y = np.array(im,copy=True)
+    im = cv2.GaussianBlur(im,(7,7),0)
+    # im = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+    img = np.array(im, copy=True)
+    h, w = get_dimensions_hw(im)
+    for i in range(1, h - 1):
+        for j in range(1, w - 1):
+            img[i][j] = im[i - 1][j - 1] + 2 * im[i][j - 1] + im[i + 1][j - 1] - im[i - 1][j + 1] - 2 * im[i][j + 1] - im[i + 1][j + 1]
+    for i in range(1, h - 1):
+        for j in range(1, w - 1):
+            im[i][j] = img[i - 1][j - 1] + 2 * img[i - 1][j] + img[i - 1][j + 1] - img[i + 1][j - 1] - 2 * img[i + 1][j] - img[i + 1][j + 1]
+    # return f_x, f_y
+    return im
 
 def edge_strength_and_orientation(f_x, f_y):
     f, d = None
@@ -137,4 +148,18 @@ def canny_edge_detection(im, sigma, t_l, t_h):
 
 
 if __name__ == "__main__":
+    img = read_image()
+    print("Start")
+    img = filtered_gradient(img, sigma=1)
+    print("End")
+    save_to_disk(img)
     pass
+
+'''
+Where am I now?
+Trying to figure out what each part of the assignment is asking me to do. Output of part 1 looks convincingly close
+when grayscale is applied; however, it is horribly inefficient -- takes a few seconds to do a scaled down image
+(~300x400). Also the blurring is done by opencv. I want to have that done myself. Need to figure out how to generate
+the mask for gaussian, given that (1) we're dealing with a discrete mask and (2) what exactly is the gaussian? Normal
+gaussian, or 1st derivative, or second derivative?
+'''
